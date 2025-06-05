@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using cwiczenia12.Data;
+using cwiczenia12.Services;
 
 
 namespace cwiczenia12.Controllers;
@@ -11,35 +10,30 @@ namespace cwiczenia12.Controllers;
 public class ClientsController : ControllerBase
 {
     
-    private readonly _2019sbdContext _context;
+    private readonly IClientsService _clientsService;
 
-    public ClientsController(_2019sbdContext context)
+    public ClientsController(IClientsService clientsService)
     {
-        _context = context;
+        _clientsService = clientsService;
     }
 
     
     [HttpDelete("{idClient}")]
-    public async Task<IActionResult> DeleteClient(int idClient)
+    public async Task<IActionResult> DeleteClientAsync(int idClient)
     {
-        var client = await _context.Cwiczenia12Clients.FindAsync(idClient);
-        if (client == null)
-        { 
-            return NotFound($"klient o id={idClient} nie istnieje");
-        }
-        
-        var doesClientHaveTrips = await _context.Cwiczenia12ClientTrips
-            .AnyAsync(ct => ct.IdClient == idClient);
-
-        if (doesClientHaveTrips) 
+        try
         {
-            return BadRequest("klient ma przypisane wycieczki -> nie można usunąć");
+            if (await _clientsService.DeleteClientAsync(idClient))
+            {
+                return Ok($"usunięto klienta o id={idClient}");
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
         
-        _context.Cwiczenia12Clients.Remove(client);
-        await _context.SaveChangesAsync();
-        
-        return Ok($"usunięto klienta o id={idClient}");
+        return BadRequest();
     }
     
 }

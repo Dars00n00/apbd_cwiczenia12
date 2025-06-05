@@ -1,7 +1,14 @@
-﻿namespace cwiczenia12.Services;
+﻿using cwiczenia12.Models;
 
 
-public class ITripsService
+namespace cwiczenia12.Services;
+
+
+public interface ITripsService
 {
+    
+    Task<IEnumerable<Cwiczenia12Trip>> GetTripsAsync(int? page, int? pageSize);
+    
+    Task<bool> AssignClientToTripAsync(int idTrip, AssignClientDto clientDto);
     
 }

@@ -5,6 +5,7 @@
 
 
 using cwiczenia12.Data;
+using cwiczenia12.Services;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,9 @@ builder.Configuration.AddJsonFile(
 
 builder.Services.AddDbContext<_2019sbdContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<ITripsService, TripsService>();
+builder.Services.AddScoped<IClientsService, ClientsService>();
 
 builder.Services.AddAuthorization(); 
 builder.Services.AddControllers(); 

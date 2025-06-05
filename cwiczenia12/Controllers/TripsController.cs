@@ -1,6 +1,6 @@
-﻿using cwiczenia12.Data;
+﻿using cwiczenia12.Models;
+using cwiczenia12.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace cwiczenia12.Controllers;
@@ -10,34 +10,47 @@ namespace cwiczenia12.Controllers;
 [ApiController]
 public class TripsController : ControllerBase
 {
-    private readonly _2019sbdContext _context;
-
+    private readonly ITripsService _tripsService;
     
-    public TripsController(_2019sbdContext context)
+    public TripsController(ITripsService tripsService)
     {
-        _context = context;
+        _tripsService = tripsService;
     }
 
+    
     [HttpGet]
     public async Task<IActionResult> GetTripsAsync(int? page, int? pageSize)
     {
-        var actualPage = page ?? 1;
-        var actualPageSize = pageSize ?? 10;
-
-        if (actualPage <= 0) 
-            actualPage = 1;
-        if (actualPageSize <= 0) 
-            actualPageSize = 10;
-
-        var tripsQuery = _context.Cwiczenia12Trips
-            .OrderByDescending(t => t.DateFrom);
-
-        var tripsQueried = await tripsQuery
-            .Skip((actualPage - 1) * actualPageSize)
-            .Take(actualPageSize)
-            .ToListAsync();
-
-        return Ok(tripsQueried);
+        return Ok(await _tripsService.GetTripsAsync(page, pageSize));
+    }
+    
+    
+    //przykładowy POST
+    // id=1
+    // {
+    //     "FirstName": "John",
+    //     "LastName": "Doe",
+    //     "Email": "doe@wp.pl",
+    //     "Telephone": "543-323-542",
+    //     "Pesel": "91040294554",
+    //     "PaymentDate": "2021-04-20T00:00:00"
+    // }
+    [HttpPost("{idTrip}/clients")]
+    public async Task<IActionResult> AssignClientToTrip(int idTrip, [FromBody] AssignClientDto clientDto)
+    {
+        try
+        {
+            if (await _tripsService.AssignClientToTripAsync(idTrip, clientDto))
+            {
+                return Ok();
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        
+        return BadRequest();
     }
     
 }
