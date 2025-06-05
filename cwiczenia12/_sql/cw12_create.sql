@@ -67,3 +67,29 @@ ALTER TABLE cwiczenia12_Client_Trip ADD CONSTRAINT cwiczenia12_Client_Trip_Clien
 ALTER TABLE cwiczenia12_Client_Trip ADD CONSTRAINT cwiczenia12_Client_Trip_Trip
     FOREIGN KEY (IdTrip)
     REFERENCES cwiczenia12_Trip (IdTrip);
+
+INSERT INTO cwiczenia12_Client (FirstName, LastName, Email, Telephone, Pesel)
+VALUES
+    ('Jan', 'Kowalski', 'jan.kowalski@example.com', '123456789', '12345678901'),
+    ('Anna', 'Nowak', 'anna.nowak@example.com', '987654321', '10987654321');
+
+INSERT INTO cwiczenia12_Country (Name)
+VALUES
+    ('Polska'),
+    ('Niemcy');
+
+INSERT INTO cwiczenia12_Trip (Name, Description, DateFrom, DateTo, MaxPeople)
+VALUES
+    ('Wycieczka nad morze', 'Relaks nad Bałtykiem', '2025-07-01', '2025-07-07', 30),
+    ('Zwiedzanie Berlina', 'Kulturalna wyprawa do Berlina', '2025-08-15', '2025-08-20', 20);
+
+
+INSERT INTO cwiczenia12_Country_Trip (IdCountry, IdTrip)
+VALUES
+    (1, 1), 
+    (2, 2); 
+
+INSERT INTO cwiczenia12_Client_Trip (IdClient, IdTrip, RegisteredAt, PaymentDate)
+VALUES
+    (1, 1, GETDATE(), NULL), 
+    (2, 2, GETDATE(), GETDATE()); 

@@ -1,41 +1,72 @@
+//w nuget biblioteki:
+//Microsoft.Data.SqlClient
+//Swashbuckle.AspNetCore.SwaggerGen
+//Swashbuckle.AspNetCore.SwaggerUI
+
+
+using cwiczenia12.Data;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Configuration.AddJsonFile(
+    "appsettings.json", 
+    optional: false, 
+    reloadOnChange: true
+);
 
-var app = builder.Build();
+//builder.Services.AddScoped<IDeliveriesService, DeliveriesService>();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+builder.Services.AddDbContext<_2019sbdContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddAuthorization(); 
+builder.Services.AddControllers(); 
+
+builder.Services.AddSwaggerGen(c => 
 {
-    app.MapOpenApi();
-}
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "cwiczenia12", 
+        Version = "v1",
+        Description = "cwiczenia12",
+        Contact = new()
+        {
+            Name = "Dariusz",
+            Email = "xxxxx@gmail.com",
+            Url = new Uri("https://github.com/Dars00n00")
+        },
+        // License = new()
+        // {
+        //     
+        // }
+    });
+});
 
-app.UseHttpsRedirection();
+var app = builder.Build(); 
 
-var summaries = new[]
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "cwiczenia12");
+    c.DocExpansion(DocExpansion.List);
+    c.DefaultModelExpandDepth(0);
+    c.DisplayRequestDuration();
+    c.EnableFilter();
+});
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+
+app.UseAuthorization();
+app.MapControllers(); 
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+
+// aby pobrać conn str należy użyć Iconfiguration
+// dot net automatycznie wstrzykuje zależność
+// IConfiguration configuration;
+// var connStr = configuration.GetConnectionString("nazwa");
+
+// dotnet ef dbcontext scaffold "Name=ConnectionStrings:main" Microsoft.EntityFrameworkCore.SqlServer --context-dir Data --output-dir Models --table cwiczenia12_Trip --table cwiczenia12_Client --table cwiczenia12_Country --table cwiczenia12_Client_Trip --table cwiczenia12_Country_Trip --project cwiczenia12/cwiczenia12.csproj
